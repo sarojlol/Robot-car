@@ -5,9 +5,6 @@
 #include <FastLED.h>
 #include <NewPing.h>
 
-#define led 2
-
-
 bool line_follow_activate;
 
 uint8_t j_slider;

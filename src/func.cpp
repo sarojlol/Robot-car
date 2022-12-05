@@ -64,3 +64,10 @@ void stop(char move, int speed){
     ledcWrite(right_pwmB, 0);
   }
 }
+
+float Volt_meter(uint16_t analog_value){
+  float volt = (analog_value/4096.0)*19.2;
+  return volt;
+}
+void volt_bluetooth(float volt){
+}

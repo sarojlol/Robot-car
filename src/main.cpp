@@ -225,10 +225,7 @@ void Task0code( void * pvParameters ){
     //update mortor speed percentage
     static uint8_t previous_j_slider;
     if (j_slider != previous_j_slider){
-      bluetooth.println("*P");
-      bluetooth.println(j_slider);
-      bluetooth.println("%*");
-
+      bluetooth.println("*P" + String(j_slider) + "*");
       previous_j_slider = j_slider;
     }
 
@@ -375,7 +372,13 @@ void Task0code( void * pvParameters ){
       }
       click_hold = true;
     }
-  }
+    static unsigned long volt_meter_delay;
+    if((millis() - volt_meter_delay) > 1000){
+      float volt = Volt_meter(analogRead(volt_meter_pin));
+      bluetooth.println("*V" + String(volt) + "*");
+      volt_meter_delay = millis();
+    }
+  } 
 }
 
 void setup() {
@@ -432,6 +435,8 @@ void setup() {
   pinMode(led_builtin, OUTPUT);
   pinMode(buzzer_pin, OUTPUT);
   pinMode(button_pin, INPUT_PULLUP);
+  pinMode(volt_meter_pin, INPUT);
+
   digitalWrite(led_builtin, HIGH);
   delay(500);
   digitalWrite(led_builtin, LOW);

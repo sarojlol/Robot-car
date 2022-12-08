@@ -375,7 +375,7 @@ void Task0code( void * pvParameters ){
     static unsigned long volt_meter_delay;
     if((millis() - volt_meter_delay) > 1000){
       float volt = Volt_meter(analogRead(volt_meter_pin));
-      bluetooth.println("*V" + String(volt) + "*");
+      bluetooth.println("*v" + String(volt) + "*");
       volt_meter_delay = millis();
     }
   } 

@@ -1,171 +1,16 @@
 #include <Arduino.h>
 #include <pin_define.h>
 #include <func.h>
-#include <BluetoothSerial.h>
 #include <FastLED.h>
-#include <NewPing.h>
 
 bool line_follow_activate;
 
-uint8_t j_slider;
-
-NewPing ultrasonic(sc_trig, sc_echo, MAX_DISTANCE);
 uint8_t sc_distance;
 
 CRGBArray<NUM_LEDS> leds;
-int8_t led_function_index = 1;
-uint8_t K_slider = 220;
-
-
-BluetoothSerial bluetooth;
 
 TaskHandle_t Task0;
 TaskHandle_t Task1;
-
-void bluetooth_check(char bt_value){
-  static int motorspeed;
-  static char previous_bt_value;
-  static uint8_t previous_led_function;
-  static bool one_text;
-  static bool fan_toggle;
-  static uint8_t fan_pwm_value;
-
-  if(bt_value == 'J'){
-    j_slider = bluetooth.parseInt();
-    motorspeed = map(j_slider, 0, 100, 0, 255);
-  }
-  if (bt_value != previous_bt_value){
-    if(bt_value == 'J'){
-      bt_value = previous_bt_value;
-    }
-    switch (bt_value){
-      //drive forward
-      case 'F':
-        forward(motorspeed, motorspeed);
-        previous_bt_value = 'F';
-        break;
-      //turn left
-      case 'Q':
-        forward(motorspeed/turn_sensitivity, motorspeed);
-        previous_bt_value = 'Q';
-        break;
-      //turn right
-      case 'E':
-        forward(motorspeed, motorspeed/turn_sensitivity);
-        previous_bt_value = 'E';
-        break;
-      //stop drive
-      case 'S':
-        if (previous_bt_value == 'F'){
-          stop('F', motorspeed);
-          previous_bt_value = 'S';
-        }
-        else if (previous_bt_value == 'G'){
-          stop('B', motorspeed);
-          previous_bt_value = 'S';
-        }
-        else{
-          stop('T', motorspeed);
-          previous_bt_value = 'S';
-        }
-        break;
-      //drive backward
-      case 'G':
-        backward(motorspeed, motorspeed);
-        previous_bt_value = 'G';
-        break;
-      case 'Z':
-        backward(motorspeed, motorspeed/turn_sensitivity);
-        previous_bt_value = 'Z';
-        break;
-      case 'C':
-        backward(motorspeed/turn_sensitivity, motorspeed);
-        backward(motorspeed, motorspeed/turn_sensitivity);
-        previous_bt_value ='C';
-        break;
-      //spin left
-      case 'L':
-        turn_left(motorspeed);
-        previous_bt_value = 'L';
-        break;
-      //spin right
-      case 'R':
-        turn_right(motorspeed);
-        previous_bt_value = 'R';
-        break;
-      //read k slider value
-      case 'K':
-        K_slider = bluetooth.parseInt();
-        break;
-      //turn fan motor on
-      case 'M':
-        fan_toggle = true;
-        ledcWrite(fan_pwm, fan_pwm_value);
-        break;
-      //turn fan motor off
-      case 'm':
-        fan_toggle = false;
-        ledcWrite(fan_pwm, 0);
-        break;
-      //fan pwm value read
-      case 'f':
-        fan_pwm_value = bluetooth.parseInt();
-        bluetooth.println("*n" + String(fan_pwm_value) + "*");
-        if(fan_toggle){
-          fan_pwm_value = map(fan_pwm_value, 0, 100, 0, 255);
-          ledcWrite(fan_pwm, fan_pwm_value);
-        }
-        break;
-      //change rgb funtion
-      case 'Y':
-          if(led_function_index != max_led_funtion){
-            led_function_index++;
-            FastLED.setBrightness(255);
-            if (led_function_index > max_led_funtion - 1){
-              led_function_index = 1;
-              one_text = false;
-            }
-          }
-        break;
-      //turn rgb on
-      case 'B':
-        led_function_index = previous_led_function;
-        break;
-      //turn rgb off    
-      case 'b':
-        previous_led_function = led_function_index;
-        led_function_index = max_led_funtion;
-        bluetooth.println("*T");
-        bluetooth.print("OFF*");
-        break;
-      }
-    }
-  //display what slider do on phone
-  if (!one_text){
-    switch (led_function_index){
-      case 1:{
-        bluetooth.println("*TNone*");
-        break;
-      }
-      case 2:{
-        bluetooth.println("*TSpeed*");
-        break;
-      }
-      case 3:{
-        bluetooth.println("*TSpeed*");
-        break;
-      }
-      case 4:{
-        bluetooth.println("*THUE*");
-        break;
-      }
-      case 5:{
-        bluetooth.println("*TSpeed*");
-        break;
-      }
-    }
-  }
-}
 
 //core 1
 void Task1code( void * pvParameters ){
@@ -173,9 +18,7 @@ void Task1code( void * pvParameters ){
   Serial.println(xPortGetCoreID());
   //loop
   for(;;){
-    if (bluetooth.available()){
-      bluetooth_check(bluetooth.read());
-    }
+    bluetooth_check();
     static bool E_Stop;
     if (sc_distance <= 10 && line_follow_activate){
       E_Stop = true;
@@ -232,20 +75,16 @@ void Task0code( void * pvParameters ){
   for(;;){
     //read ultrasonic sensor
     if (line_follow_activate){
-      sc_distance = ultrasonic.ping_cm();
-    }
-
-    //update mortor speed percentage
-    static uint8_t previous_j_slider;
-    if (j_slider != previous_j_slider){
-      bluetooth.println("*P" + String(j_slider) + "*");
-      previous_j_slider = j_slider;
+      sc_distance = ultrasonic_distance();
     }
 
     static uint8_t hue;
     static int led_index;
     static unsigned long led_delay;
     //change rgb function
+    uint8_t K_slider = k_slider_check();
+    int8_t led_function_index = led_function_check();
+    uint8_t brightness_slider = brightness_check();
     switch (led_function_index){
     case 1:{
       int16_t t = millis()/4;
@@ -258,6 +97,7 @@ void Task0code( void * pvParameters ){
         led_index ++;
       }
       else{
+        FastLED.setBrightness(brightness_slider);
         FastLED.show();
         led_index = 0;
       }
@@ -275,6 +115,7 @@ void Task0code( void * pvParameters ){
 
           // now, let's first 20 leds to the top 20 leds,
           leds(NUM_LEDS/2, NUM_LEDS-1) = leds(NUM_LEDS/2 -1  ,0);
+          FastLED.setBrightness(brightness_slider);
           FastLED.show();
         }
         if (led_index >= NUM_LEDS/2){
@@ -287,6 +128,7 @@ void Task0code( void * pvParameters ){
     case 3:{
       if(led_index < NUM_LEDS){
         leds[led_index++] = CHSV(hue, 255, 255);
+        FastLED.setBrightness(brightness_slider);
         FastLED.show();
       }
       else{
@@ -342,7 +184,6 @@ void Task0code( void * pvParameters ){
       brightness = max(brightness, 0);
       leds[led_index] = CHSV(hue, 255, 255);
       FastLED.show();
-      //Serial.println(brightness);
       break;
     }
     case max_led_funtion:{
@@ -387,8 +228,7 @@ void Task0code( void * pvParameters ){
     }
     static unsigned long volt_meter_delay;
     if((millis() - volt_meter_delay) > 1000){
-      float volt = Volt_meter(analogRead(volt_meter_pin));
-      bluetooth.println("*v" + String(volt) + "*");
+      Volt_meter(analogRead(volt_meter_pin));
       volt_meter_delay = millis();
     }
   } 
@@ -420,7 +260,7 @@ void setup() {
 
   //ws2812 setup
   Serial.begin(115200);
-  bluetooth.begin("A_Stupid_car");
+  bluetooth_begin();
   FastLED.addLeds<WS2812B,fastLed_pin>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
@@ -443,6 +283,10 @@ void setup() {
   pinMode(center_line, INPUT);
   pinMode(right_center_line, INPUT);
   pinMode(right_line, INPUT);
+
+  //ultrasonic pin setup
+  pinMode(sc_trig, OUTPUT);
+  pinMode(sc_echo, INPUT);
 
   //Acessory pin setup
   pinMode(led_builtin, OUTPUT);

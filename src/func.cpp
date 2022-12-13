@@ -219,8 +219,8 @@ void bluetooth_check(){
         case 'f':
           fan_pwm_value = bluetooth.parseInt();
           bluetooth.println("*n" + String(fan_pwm_value) + "*");
+          fan_pwm_value = map(fan_pwm_value, 0, 100, 0, 255);
           if(fan_toggle){
-            fan_pwm_value = map(fan_pwm_value, 0, 100, 0, 255);
             ledcWrite(fan_pwm, fan_pwm_value);
           }
           break;

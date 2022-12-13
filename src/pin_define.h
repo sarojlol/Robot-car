@@ -24,6 +24,7 @@
 #define button_pin 5
 #define buzzer_pin 23
 #define fan_pin 27
+#define fan_pwm 4
 #define volt_meter_pin 36
 
 //hc-sr04 pins

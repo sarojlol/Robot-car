@@ -27,6 +27,8 @@ void bluetooth_check(char bt_value){
   static char previous_bt_value;
   static uint8_t previous_led_function;
   static bool one_text;
+  static bool fan_toggle;
+  static uint8_t fan_pwm_value;
 
   if(bt_value == 'J'){
     j_slider = bluetooth.parseInt();
@@ -97,11 +99,22 @@ void bluetooth_check(char bt_value){
         break;
       //turn fan motor on
       case 'M':
-        digitalWrite(fan_pin, HIGH);
+        fan_toggle = true;
+        ledcWrite(fan_pwm, fan_pwm_value);
         break;
       //turn fan motor off
       case 'm':
-        digitalWrite(fan_pin, LOW);
+        fan_toggle = false;
+        ledcWrite(fan_pwm, 0);
+        break;
+      //fan pwm value read
+      case 'f':
+        fan_pwm_value = bluetooth.parseInt();
+        bluetooth.println("*n" + String(fan_pwm_value) + "*");
+        if(fan_toggle){
+          fan_pwm_value = map(fan_pwm_value, 0, 100, 0, 255);
+          ledcWrite(fan_pwm, fan_pwm_value);
+        }
         break;
       //change rgb funtion
       case 'Y':
@@ -436,6 +449,8 @@ void setup() {
   pinMode(buzzer_pin, OUTPUT);
   pinMode(button_pin, INPUT_PULLUP);
   pinMode(volt_meter_pin, INPUT);
+  ledcSetup(fan_pwm, 50, 8);
+  ledcAttachPin(fan_pin, fan_pwm);
 
   digitalWrite(led_builtin, HIGH);
   delay(500);

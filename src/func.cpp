@@ -104,6 +104,10 @@ uint8_t brightness_check(){
   return(brightness);
 }
 
+void led_function_write(int index){
+  led_function_index = index;
+}
+
 int8_t led_function_check(){
   return led_function_index;
 }

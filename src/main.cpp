@@ -219,10 +219,16 @@ void Task0code( void * pvParameters ){
       button_filter = millis();
     }
     //switch hold function
+    static int manual_led_index;
+    if (manual_led_index != led_function_check()){
+      manual_led_index = led_function_check();
+    }
     if ((millis() - switch_hold_delay) > 1500 && !click_hold && one_click){
-      led_function_index ++;
-      if (led_function_index > max_led_funtion){
-        led_function_index = 1;
+      manual_led_index ++;
+      led_function_write(manual_led_index);
+      if (manual_led_index > max_led_funtion){
+        manual_led_index = 1;
+        led_function_write(manual_led_index);
       }
       click_hold = true;
     }

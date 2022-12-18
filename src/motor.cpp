@@ -74,7 +74,7 @@ void Volt_meter(uint16_t analog_value){
 int ultrasonic_distance(){
   long duration;
   int distance;
-    // Clears the trigPin
+  // Clears the trigPin
   digitalWrite(sc_trig, LOW);
   delayMicroseconds(2);
   // Sets the trigPin on HIGH state for 10 micro seconds

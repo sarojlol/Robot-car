@@ -13,8 +13,9 @@
 #define turn_line_speed2 128 // lean abit fast side
 #define turn_line_speed3 0 // lean more slow side
 #define turn_line_speed4 200 // lean more fast side
-#define spin_speed 200
-#define spin_speed2 200
+#define spin_speed1 200//spin slowly
+#define spin_speed2 200//spin faster
+#define spin_speed3 200//spin fastest
 //#define line_debug
 
 //motor drive

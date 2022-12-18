@@ -61,13 +61,17 @@ void Task1code( void * pvParameters ){
           forward(line_forward_speed, line_forward_speed);
         }
         //****************************************left error***************************************************
-        //turn left
-        else if (!sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//00111
-          spin_left(spin_speed);
+        //spin left
+        else  if (!sensor1_value &! sensor2_value &! sensor3_value && sensor4_value && sensor5_value){//00011
+          spin_left(spin_speed1);
         }
-        //turn left
-        else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//01111
+        //spin left
+        else if (!sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//00111
           spin_left(spin_speed2);
+        }
+        //spin left
+        else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//01111
+          spin_left(spin_speed3);
         }
         //lean left abit
         else if (sensor1_value &! sensor2_value &! sensor3_value && sensor4_value && sensor5_value){//10011
@@ -78,13 +82,17 @@ void Task1code( void * pvParameters ){
           forward(turn_line_speed3, turn_line_speed4);
         }
         //***************************************right error**************************************************
-        //turn right
-        else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value &! sensor5_value){//11100
-          spin_right(spin_speed);
+        //spin right
+        else if (sensor1_value && sensor2_value &! sensor3_value &! sensor4_value &! sensor5_value){//11000
+          spin_right(spin_speed1);
         }
-        //turn right
-        else if (sensor1_value && sensor2_value && sensor3_value && sensor4_value &! sensor5_value){//11110
+        //spin right
+        else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value &! sensor5_value){//11100
           spin_right(spin_speed2);
+        }
+        //spin right
+        else if (sensor1_value && sensor2_value && sensor3_value && sensor4_value &! sensor5_value){//11110
+          spin_right(spin_speed3);
         }
         //lean right abit
         else if (sensor1_value && sensor2_value &! sensor3_value &! sensor4_value && sensor5_value){//11001

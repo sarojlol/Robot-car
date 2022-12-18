@@ -1,5 +1,7 @@
 //general config
 //#define sw_beep
+//#define phone_bluetooth
+#define ps4_bluetooth
 
 //tcrt5000L pins
 #define sensor1 33 // far left

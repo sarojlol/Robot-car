@@ -6,3 +6,5 @@ int8_t led_function_check();
 uint8_t j_slider_check();
 uint8_t k_slider_check();
 void bluetooth_check();
+void ps4_begin();
+void check_PS4();

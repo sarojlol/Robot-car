@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <pin_define.h>
 #include <motor.h>
+#include <bluetooth.h>
 #include <FastLED.h>
 
 bool line_follow_activate;
@@ -25,7 +26,11 @@ void Task1code( void * pvParameters ){
   Serial.println(xPortGetCoreID());
   //loop
   for(;;){
-    bluetooth_check();
+    #ifdef phone_bluetooth
+      bluetooth_check();
+    #endif
+    #ifdef ps4_bluetooth
+
     if (line_follow_activate){
       sc_distance = ultrasonic_distance();
       if (sc_distance <= 10){
@@ -411,7 +416,13 @@ void setup() {
   delay(500); 
 
   Serial.begin(115200);
-  bluetooth_begin();
+  //conrtroller_setup
+  #ifdef phone_bluetooth
+    bluetooth_begin();
+  #endif
+  #ifdef ps4_bluetooth
+    ps4_begin();
+  #endif
 
   //ws2812 setup
   FastLED.addLeds<WS2812B,fastLed_pin>(leds, NUM_LEDS);

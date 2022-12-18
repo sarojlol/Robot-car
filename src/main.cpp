@@ -95,7 +95,7 @@ void Task1code( void * pvParameters ){
           forward(turn_line_speed4, turn_line_speed3);
         }
         //***************************************out of line*************************************************
-        else if(){
+        else if(sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//11111
           forward(line_forward_speed, line_forward_speed);
           delay(50);
           stop('T', 255);

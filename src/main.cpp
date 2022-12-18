@@ -104,8 +104,6 @@ void Task1code( void * pvParameters ){
         }
         //***************************************out of line*************************************************
         else if(sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//11111
-          forward(line_forward_speed, line_forward_speed);
-          delay(50);
           stop('T', 255);
           delay(500);
           beep(1000);
@@ -334,9 +332,10 @@ void setup() {
                     1);          /* pin task to core 1 */
   delay(500); 
 
-  //ws2812 setup
   Serial.begin(115200);
   bluetooth_begin();
+  
+  //ws2812 setup
   FastLED.addLeds<WS2812B,fastLed_pin>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();

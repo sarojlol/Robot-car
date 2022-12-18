@@ -1,11 +1,15 @@
 //tcrt5000L pins
-#define left_line 33
-#define left_center_line 32
-#define center_line 35
-#define right_center_line 34
-#define right_line 39
-#define forward_line_speed 128
-#define turn_line_speed 200
+#define sensor1 33 // far left
+#define sensor2 32 // left
+#define sensor3 35 // center
+#define sensor4 34 // right
+#define sensor5 39 // far right
+#define sensorL 12 // edge left
+#define sensorR 13 //edge right
+#define line_forward_speed 128
+#define turn_line_speed1 90
+#define turn_line_speed2 128
+#define turn_line_speed3 200
 
 //motor drive
 #define left_A 19

@@ -8,3 +8,7 @@ void Volt_meter(uint16_t analog_value);
 
 int ultrasonic_distance();
 
+void beep(int duration);
+
+void fanWrite(uint8_t pwm);
+

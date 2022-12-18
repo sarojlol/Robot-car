@@ -88,3 +88,13 @@ int ultrasonic_distance(){
   // Prints the distance on the Serial Monitor
   return distance;
 }
+
+void beep(int duration){
+  digitalWrite(buzzer_pin, HIGH);
+  delay(duration);
+  digitalWrite(buzzer_pin, LOW);
+}
+
+void fanWrite(uint8_t pwm){
+  ledcWrite(fan_pwm, pwm);
+}

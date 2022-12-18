@@ -5,6 +5,13 @@
 #include <FastLED.h>
 
 bool line_follow_activate;
+bool sensor1_value;
+bool sensor2_value;
+bool sensor3_value;
+bool sensor4_value;
+bool sensor5_value;
+bool sensorL_value;
+bool sensorR_value;
 
 uint8_t sc_distance;
 
@@ -20,51 +27,45 @@ void Task1code( void * pvParameters ){
   //loop
   for(;;){
     bluetooth_check();
-    static bool E_Stop;
-    if (sc_distance <= 10 && line_follow_activate){
-      E_Stop = true;
-    }
-    if(E_Stop){
-      stop('F', 255);
-      line_follow_activate = false;
-      E_Stop = false;
+    if (line_follow_activate){
+      sc_distance = ultrasonic_distance();
+      if (sc_distance <= 10){
+        stop('F', 255);
+        beep(100);
+        fanWrite(255);
+        delay(2000);
+        fanWrite(0);
+        line_follow_activate = false;
+      }
+      else{
+        sensor1_value = digitalRead(sensor1);
+        sensor2_value = digitalRead(sensor2);
+        sensor3_value = digitalRead(sensor3);
+        sensor4_value = digitalRead(sensor4);
+        sensor5_value = digitalRead(sensor5);
+        sensorL_value = digitalRead(sensorL);
+        sensorR_value = digitalRead(sensorR);
+        // stop
+        if (!sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value &! sensor5_value){ //00000
+          stop('T', 255);
+          beep(1000);
+          line_follow_activate = false;
+        }
+        //keep forward
+        else if (
+          (sensor1_value && sensor2_value &! sensor3_value && sensor4_value && sensor5_value) /* 11011 */
+          (sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value && sensor5_value) /* 10001 */
+        )
+        {
+          forward(line_forward_speed, line_forward_speed);
+        }
+        //lean left abit
+        else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//10111
+          forward(turn_line_speed1, turn_line_speed2);
+        }
+      }
     }
 
-    //follow line
-    static bool afterTurn;
-    if (line_follow_activate){
-      if (!digitalRead(center_line)){
-        forward(forward_line_speed, forward_line_speed);
-        afterTurn = false;
-      }
-      if(!digitalRead(left_center_line)){
-        forward(forward_line_speed/2, forward_line_speed);
-      }
-      if(!digitalRead(right_center_line)){
-        forward(forward_line_speed, forward_line_speed/2);
-      }
-      if(!digitalRead(right_line) &! digitalRead(right_center_line) &! afterTurn){
-        delay(250);
-        stop('F', turn_line_speed);
-        turn_right(turn_line_speed);
-        delay(turn_line_speed*1.4);
-        stop('T', turn_line_speed);
-        afterTurn = true;
-      }
-      // if(digitalRead(right_line) == LOW && afterTurn){
-      //   forward(forward_line_speed, forward_line_speed/2);
-      //   afterTurn = false;
-      // }
-      // if(digitalRead(left_line) == LOW && afterTurn){
-      //   forward(forward_line_speed/2, forward_line_speed);
-      //   afterTurn = false;
-      // }
-      // if(digitalRead(left_line) == LOW && digitalRead(left_center_line) == LOW && digitalRead(center_line) == LOW && 
-      // digitalRead(right_center_line) == LOW && digitalRead(right_line) == LOW){
-      //   stop('T', 255);
-      //   line_follow_activate = false;
-      // }
-    }
   } 
 }
 
@@ -75,9 +76,6 @@ void Task0code( void * pvParameters ){
   //loop
   for(;;){
     //read ultrasonic sensor
-    if (line_follow_activate){
-      sc_distance = ultrasonic_distance();
-    }
 
     static uint8_t hue;
     static int led_index;
@@ -287,11 +285,13 @@ void setup() {
   ledcAttachPin(right_B, right_pwmB);
 
   //Line track pin setup
-  pinMode(left_line, INPUT);
-  pinMode(left_center_line, INPUT);
-  pinMode(center_line, INPUT);
-  pinMode(right_center_line, INPUT);
-  pinMode(right_line, INPUT);
+  pinMode(sensor1, INPUT);
+  pinMode(sensor2, INPUT);
+  pinMode(sensor3, INPUT);
+  pinMode(sensor4, INPUT);
+  pinMode(sensor5, INPUT);
+  pinMode(sensorL, INPUT);
+  pinMode(sensorR, INPUT);
 
   //ultrasonic pin setup
   pinMode(sc_trig, OUTPUT);

@@ -102,6 +102,19 @@ void Task1code( void * pvParameters ){
           delay(500);
           beep(1000);
           line_follow_activate = false;
+        #ifdef line_debug
+          static unsigned long line_debug_delay;
+          if ((millis() - line_debug_delay) > 50){
+            Serial.print(sensor1_value);
+            Serial.print(sensor2_value);
+            Serial.print(sensor3_value);
+            Serial.print(sensor4_value);
+            Serial.print(sensor5_value);
+            Serial.print(sensorL_value);
+            Serial.println(sensorR_value);
+            line_debug_delay = millis();
+          }
+        #endif
         }
       }
     }
@@ -284,13 +297,6 @@ void Task0code( void * pvParameters ){
       if((millis() - volt_meter_delay) > 1000){
         Volt_meter(analogRead(volt_meter_pin));
         volt_meter_delay = millis();
-      }
-    #endif
-
-    #ifdef line_debug
-      static unsigned long line_debug_delay;
-      if ((millis() - line_debug_delay) > 50){
-        line_debug_delay = millis();
       }
     #endif
   } 

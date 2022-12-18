@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <pin_define.h>
 #include <motor.h>
-#include <bluetooth.h>
 #include <FastLED.h>
 
 bool line_follow_activate;

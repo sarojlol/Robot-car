@@ -15,6 +15,7 @@
 #define turn_line_speed4 200 // lean more fast side
 #define spin_speed 200
 #define spin_speed2 200
+//#define line_debug
 
 //motor drive
 #define left_A 19
@@ -35,6 +36,7 @@
 #define fan_pin 27
 #define fan_pwm 4
 #define volt_meter_pin 36
+#define voltage_mornitor
 
 //hc-sr04 pins
 #define sc_trig 25

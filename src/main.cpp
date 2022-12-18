@@ -279,11 +279,20 @@ void Task0code( void * pvParameters ){
     }
 
     //voltage mornitor
-    static unsigned long volt_meter_delay;
-    if((millis() - volt_meter_delay) > 1000){
-      Volt_meter(analogRead(volt_meter_pin));
-      volt_meter_delay = millis();
-    }
+    #ifdef voltage_mornitor
+      static unsigned long volt_meter_delay;
+      if((millis() - volt_meter_delay) > 1000){
+        Volt_meter(analogRead(volt_meter_pin));
+        volt_meter_delay = millis();
+      }
+    #endif
+
+    #ifdef line_debug
+      static unsigned long line_debug_delay;
+      if ((millis() - line_debug_delay) > 50){
+        line_debug_delay = millis();
+      }
+    #endif
   } 
 }
 

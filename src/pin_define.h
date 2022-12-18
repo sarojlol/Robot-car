@@ -1,3 +1,6 @@
+//general config
+//#define sw_beep
+
 //tcrt5000L pins
 #define sensor1 33 // far left
 #define sensor2 32 // left
@@ -17,6 +20,8 @@
 #define spin_speed2 200//spin faster
 #define spin_speed3 200//spin fastest
 //#define line_debug
+//#define line_beep
+#define line_beep_duration 50
 
 //motor drive
 #define left_A 19

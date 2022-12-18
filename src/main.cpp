@@ -31,6 +31,9 @@ void Task1code( void * pvParameters ){
       sc_distance = ultrasonic_distance();
       if (sc_distance <= 10){
         stop('F', line_stop_speed);
+        #ifdef line_debug
+          bluetooth_write("*DStop*");
+        #endif
         beep(100);
         fanWrite(255);
         delay(2000);
@@ -49,6 +52,9 @@ void Task1code( void * pvParameters ){
         //stop
         if (!sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value &! sensor5_value){ //00000
           stop('T', 255);
+          #ifdef line_debug
+            bluetooth_write("*DStop*");
+          #endif
           beep(1000);
           line_follow_activate = false;
         }
@@ -59,65 +65,133 @@ void Task1code( void * pvParameters ){
         )
         {
           forward(line_forward_speed, line_forward_speed);
+          #ifdef line_debug
+            bluetooth_write("*DForward*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //****************************************left error***************************************************
         //spin left
         else  if (!sensor1_value &! sensor2_value &! sensor3_value && sensor4_value && sensor5_value){//00011
           spin_left(spin_speed1);
+          #ifdef line_debug
+            Serial.println("*Dspin left*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //spin left
         else if (!sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//00111
           spin_left(spin_speed2);
+          #ifdef line_debug
+            Serial.println("*Dspin left*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //spin left
         else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//01111
           spin_left(spin_speed3);
+          #ifdef line_debug
+            bluetooth_write("*Dspin left*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //lean left abit
         else if (sensor1_value &! sensor2_value &! sensor3_value && sensor4_value && sensor5_value){//10011
           forward(turn_line_speed1, turn_line_speed2);
+          #ifdef line_debug
+            bluetooth_write("*Dturn left abit*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //lean left more
         else if (sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//10111
           forward(turn_line_speed3, turn_line_speed4);
+          #ifdef line_debug
+            bluetooth_write("*Dturn left more*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //***************************************right error**************************************************
         //spin right
         else if (sensor1_value && sensor2_value &! sensor3_value &! sensor4_value &! sensor5_value){//11000
           spin_right(spin_speed1);
+          #ifdef line_debug
+            bluetooth_write("*Dspin right*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //spin right
         else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value &! sensor5_value){//11100
           spin_right(spin_speed2);
+          #ifdef line_debug
+            bluetooth_write("*Dspin right*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //spin right
         else if (sensor1_value && sensor2_value && sensor3_value && sensor4_value &! sensor5_value){//11110
           spin_right(spin_speed3);
+          #ifdef line_debug
+            bluetooth_write("*Dspin right*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //lean right abit
         else if (sensor1_value && sensor2_value &! sensor3_value &! sensor4_value && sensor5_value){//11001
           forward(turn_line_speed2, turn_line_speed1);
+          #ifdef line_debug
+            bluetooth_write("*Dturn right abit*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //lean right more
         else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value && sensor5_value){//11101
           forward(turn_line_speed4, turn_line_speed3);
+          #ifdef line_debug
+            bluetooth_write("*Dturn right more*");
+          #endif
+          #ifdef line_beep
+            beep(line_beep_duration);
+          #endif
         }
         //***************************************out of line*************************************************
         else if(sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//11111
           stop('T', 255);
+          #ifdef line_debug
+            bluetooth_write("*Dout of line*");
+          #endif
+          #ifdef line_beep
+            beep(1000);
+          #endif
           delay(500);
-          beep(1000);
           line_follow_activate = false;
+        //
         #ifdef line_debug
           static unsigned long line_debug_delay;
           if ((millis() - line_debug_delay) > 50){
-            Serial.print(sensor1_value);
-            Serial.print(sensor2_value);
-            Serial.print(sensor3_value);
-            Serial.print(sensor4_value);
-            Serial.print(sensor5_value);
-            Serial.print(sensorL_value);
-            Serial.println(sensorR_value);
+            bluetooth_write("*D" + String(sensor1_value) + String(sensor2_value) + String(sensor3_value) + 
+                            String(sensor4_value) + String(sensor5_value) + String(sensorL_value) + String(sensorR_value) 
+                            + "*");
             line_debug_delay = millis();
           }
         #endif
@@ -269,7 +343,9 @@ void Task0code( void * pvParameters ){
       else if (digitalRead(button_pin) && one_click){
         if(!click_hold){
           line_follow_activate =! line_follow_activate;
-          beep_none_delay(200);
+          #ifdef sw_beep
+            beep(200);
+          #endif
           if(!line_follow_activate){
             stop('F', 255);
           }
@@ -288,6 +364,9 @@ void Task0code( void * pvParameters ){
       manual_led_index = led_function_check();
     }
     if ((millis() - switch_hold_delay) > 1500 && !click_hold && one_click){
+      #ifdef sw_beep
+        beep_none_delay(100);
+      #endif
       manual_led_index ++;
       led_function_write(manual_led_index);
       if (manual_led_index > max_led_funtion){
@@ -334,7 +413,7 @@ void setup() {
 
   Serial.begin(115200);
   bluetooth_begin();
-  
+
   //ws2812 setup
   FastLED.addLeds<WS2812B,fastLed_pin>(leds, NUM_LEDS);
   FastLED.clear();

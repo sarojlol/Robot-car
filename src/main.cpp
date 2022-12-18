@@ -30,7 +30,7 @@ void Task1code( void * pvParameters ){
     if (line_follow_activate){
       sc_distance = ultrasonic_distance();
       if (sc_distance <= 10){
-        stop('F', 255);
+        stop('F', line_stop_speed);
         beep(100);
         fanWrite(255);
         delay(2000);

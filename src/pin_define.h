@@ -6,7 +6,9 @@
 #define sensor5 39 // far right
 #define sensorL 12 // edge left
 #define sensorR 13 // edge right
+//line track config
 #define line_forward_speed 128
+#define line_stop_speed 255
 #define turn_line_speed1 90 // lean abit slow side
 #define turn_line_speed2 128 // lean abit fast side
 #define turn_line_speed3 0 // lean more slow side

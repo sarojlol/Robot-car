@@ -23,7 +23,7 @@ void backward(int left_speed, int right_speed){
   ledcWrite(right_pwmA, 0);
 }
 
-void turn_left(int speed){
+void spin_left(int speed){
   speed = min(speed, 255);
   speed = max(speed, 0);
   ledcWrite(left_pwmB, speed);
@@ -31,7 +31,7 @@ void turn_left(int speed){
   ledcWrite(right_pwmA, speed);
   ledcWrite(right_pwmB, 0);
 }
-void turn_right(int speed){
+void spin_right(int speed){
   speed = min(speed, 255);
   speed = max(speed, 0);
   ledcWrite(left_pwmA, speed);
@@ -87,6 +87,22 @@ int ultrasonic_distance(){
   distance = duration * 0.034 / 2;
   // Prints the distance on the Serial Monitor
   return distance;
+}
+static unsigned long beep_delay;
+static bool beep_flag;
+static int duration1;
+void beep_tick(){
+  if (((millis() - beep_delay) > duration1) && beep_flag){
+    digitalWrite(buzzer_pin, LOW);
+    beep_flag = false;
+  }
+}
+
+void beep_none_delay(int duration){
+  digitalWrite(buzzer_pin, HIGH);
+  beep_delay = millis();
+  duration1 = duration;
+  beep_flag = true;
 }
 
 void beep(int duration){

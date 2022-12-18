@@ -111,12 +111,12 @@ void bluetooth_check(){
           break;
         //spin left
         case 'L':
-          turn_left(motorspeed);
+          spin_left(motorspeed);
           previous_bt_value = 'L';
           break;
         //spin right
         case 'R':
-          turn_right(motorspeed);
+          spin_right(motorspeed);
           previous_bt_value = 'R';
           break;
         //read k slider value

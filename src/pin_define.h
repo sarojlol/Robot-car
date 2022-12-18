@@ -5,11 +5,14 @@
 #define sensor4 34 // right
 #define sensor5 39 // far right
 #define sensorL 12 // edge left
-#define sensorR 13 //edge right
+#define sensorR 13 // edge right
 #define line_forward_speed 128
-#define turn_line_speed1 90
-#define turn_line_speed2 128
-#define turn_line_speed3 200
+#define turn_line_speed1 90 // lean abit slow side
+#define turn_line_speed2 128 // lean abit fast side
+#define turn_line_speed3 0 // lean more slow side
+#define turn_line_speed4 200 // lean more fast side
+#define spin_speed 200
+#define spin_speed2 200
 
 //motor drive
 #define left_A 19

@@ -45,23 +45,63 @@ void Task1code( void * pvParameters ){
         sensor5_value = digitalRead(sensor5);
         sensorL_value = digitalRead(sensorL);
         sensorR_value = digitalRead(sensorR);
-        // stop
+        //***************************************no line detect**********************************************
+        //stop
         if (!sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value &! sensor5_value){ //00000
           stop('T', 255);
           beep(1000);
           line_follow_activate = false;
         }
-        //keep forward
+        //****************************************keep forward**********************************************
         else if (
-          (sensor1_value && sensor2_value &! sensor3_value && sensor4_value && sensor5_value) /* 11011 */
+          (sensor1_value && sensor2_value &! sensor3_value && sensor4_value && sensor5_value) || /* 11011 */
           (sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value && sensor5_value) /* 10001 */
         )
         {
           forward(line_forward_speed, line_forward_speed);
         }
+        //****************************************left error***************************************************
+        //turn left
+        else if (!sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//00111
+          spin_left(spin_speed);
+        }
+        //turn left
+        else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//01111
+          spin_left(spin_speed2);
+        }
         //lean left abit
-        else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//10111
+        else if (sensor1_value &! sensor2_value &! sensor3_value && sensor4_value && sensor5_value){//10011
           forward(turn_line_speed1, turn_line_speed2);
+        }
+        //lean left more
+        else if (sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//10111
+          forward(turn_line_speed3, turn_line_speed4);
+        }
+        //***************************************right error**************************************************
+        //turn right
+        else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value &! sensor5_value){//11100
+          spin_right(spin_speed);
+        }
+        //turn right
+        else if (sensor1_value && sensor2_value && sensor3_value && sensor4_value &! sensor5_value){//11110
+          spin_right(spin_speed2);
+        }
+        //lean right abit
+        else if (sensor1_value && sensor2_value &! sensor3_value &! sensor4_value && sensor5_value){//11001
+          forward(turn_line_speed2, turn_line_speed1);
+        }
+        //lean right more
+        else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value && sensor5_value){//11101
+          forward(turn_line_speed4, turn_line_speed3);
+        }
+        //***************************************out of line*************************************************
+        else if(){
+          forward(line_forward_speed, line_forward_speed);
+          delay(50);
+          stop('T', 255);
+          delay(500);
+          beep(1000);
+          line_follow_activate = false;
         }
       }
     }
@@ -75,16 +115,16 @@ void Task0code( void * pvParameters ){
   Serial.println(xPortGetCoreID());
   //loop
   for(;;){
-    //read ultrasonic sensor
-
+    beep_tick();
+    //WS2812B variable
     static uint8_t hue;
     static int led_index;
     static unsigned long led_delay;
-    //change rgb function
     uint8_t K_slider = k_slider_check();
     int8_t led_function_index = led_function_check();
     uint8_t brightness_slider = brightness_check();
     switch (led_function_index){
+    //ranndom noise color
     case 1:{
       int16_t t = millis()/4;
       uint16_t x = 0;
@@ -102,6 +142,7 @@ void Task0code( void * pvParameters ){
       }
       break;
     }
+    //running to center rainbow
     case 2:{
       if((millis() - led_delay) > 255 - K_slider){
         if (led_index < NUM_LEDS/2){
@@ -124,6 +165,7 @@ void Task0code( void * pvParameters ){
       }
       break;
     }
+    //solid rainbow color
     case 3:{
       if(led_index < NUM_LEDS){
         leds[led_index++] = CHSV(hue, 255, 255);
@@ -139,6 +181,7 @@ void Task0code( void * pvParameters ){
       }
       break;
     }
+    //chosen solid color
     case 4:{
       if(led_index < NUM_LEDS){
         leds[led_index++] = CHSV(K_slider, 255, 255);
@@ -149,6 +192,7 @@ void Task0code( void * pvParameters ){
       }
       break;
     }
+    //breathing rainbow color
     case 5:{
       static bool fade_flag;
       static int brightness;
@@ -185,6 +229,7 @@ void Task0code( void * pvParameters ){
       FastLED.show();
       break;
     }
+    //turn all off
     case max_led_funtion:{
       FastLED.clear();
       FastLED.show();
@@ -205,8 +250,9 @@ void Task0code( void * pvParameters ){
       else if (digitalRead(button_pin) && one_click){
         if(!click_hold){
           line_follow_activate =! line_follow_activate;
+          beep_none_delay(200);
           if(!line_follow_activate){
-            stop('F', forward_line_speed);
+            stop('F', 255);
           }
           one_click = false;
         }

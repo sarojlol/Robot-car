@@ -419,7 +419,9 @@ void setup() {
   #ifdef phone_bluetooth
     bluetooth_begin();
   #endif
-  ps4_begin();
+  #ifdef ps4_bluetooth
+    ps4_begin();
+  #endif
 
   //ws2812 setup
   FastLED.addLeds<WS2812B,fastLed_pin>(leds, NUM_LEDS);

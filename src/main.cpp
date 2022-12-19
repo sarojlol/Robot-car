@@ -29,7 +29,6 @@ void Task1code( void * pvParameters ){
     #ifdef phone_bluetooth
       bluetooth_check();
     #endif
-    #ifdef ps4_bluetooth
 
     if (line_follow_activate){
       sc_distance = ultrasonic_distance();
@@ -420,9 +419,7 @@ void setup() {
   #ifdef phone_bluetooth
     bluetooth_begin();
   #endif
-  #ifdef ps4_bluetooth
-    ps4_begin();
-  #endif
+  ps4_begin();
 
   //ws2812 setup
   FastLED.addLeds<WS2812B,fastLed_pin>(leds, NUM_LEDS);

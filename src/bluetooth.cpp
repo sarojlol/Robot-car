@@ -41,7 +41,7 @@ uint8_t k_slider_check(){
   }
 
   void bluetooth_check(){
-    static char bt_value;
+    char bt_value;
     if (bluetooth.available()){
       bt_value = bluetooth.read();
       //Serial.write(bt_value);
@@ -51,36 +51,6 @@ uint8_t k_slider_check(){
       static bool one_text;
       static bool fan_toggle;
       static uint8_t fan_pwm_value;
-      static int joystick_Y;
-      static int joystick_X;
-      //joystick
-      while (bt_value == 'HX'){
-        switch (bt_value)
-        {
-        case 'Y':
-          joystick_Y = bluetooth.parseInt();
-          if (joystick_Y == 0 && joystick_X == 0){
-            stop('T', 255);
-            break;
-          }
-          else if (joystick_Y < joystick_deadzoneY){
-            joystick_Y  = joystick_Y * -1;
-            forward(joystick_Y, joystick_Y);
-            bluetooth.flush();
-            break;
-          }
-          else if (joystick_Y > joystick_deadzoneY){
-            backward(joystick_Y, joystick_Y);
-            bluetooth.flush();
-            break;
-          }
-          break;
-        case 'X':
-          joystick_X = bluetooth.parseInt();
-          break;
-        }
-      }
-
       if(bt_value == 'J'){
         j_slider = bluetooth.parseInt();
         motorspeed = map(j_slider, 0, 100, 0, 255);
@@ -152,26 +122,6 @@ uint8_t k_slider_check(){
             spin_right(motorspeed);
             previous_bt_value = 'R';
             break;
-          //joystick
-          // case 'Y':
-          //   joystick_Y = bluetooth.parseInt();
-          //   if (joystick_Y == 0 && joystick_X == 0){
-          //     stop('T', 255);
-          //   }
-          //   else if (joystick_Y < joystick_deadzoneY){
-          //     joystick_Y  = joystick_Y * -1;
-          //     forward(joystick_Y, joystick_Y);
-          //     bluetooth.flush();
-          //   }
-          //   else if (joystick_Y > joystick_deadzoneY){
-          //     backward(joystick_Y, joystick_Y);
-          //     bluetooth.flush();
-          //   }
-          //   break;
-          // break;
-          // case 'X':
-          //   joystick_X = bluetooth.parseInt();
-          //   break;
           //read k slider value
           case 'K':
             K_slider = bluetooth.parseInt();

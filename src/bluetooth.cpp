@@ -41,30 +41,33 @@ uint8_t k_slider_check(){
   }
 
   void bluetooth_check(){
-    char bt_value;
     if (bluetooth.available()){
-      bt_value = bluetooth.read();
-      //Serial.write(bt_value);
+      char bt_value;
       static int motorspeed;
       static char previous_bt_value;
       static uint8_t previous_led_function;
       static bool one_text;
       static bool fan_toggle;
       static uint8_t fan_pwm_value;
-      if(bt_value == 'J'){
+      static bool reverse = true;
+      static int turn_sensitivity;
+
+      bt_value = bluetooth.read();
+      //Serial.write(bt_value);
+
+      //read mortor speed value
+      if (bt_value == 'J'){
         j_slider = bluetooth.parseInt();
         motorspeed = map(j_slider, 0, 100, 0, 255);
+        bluetooth.println("*P" + String(j_slider) + "*");
       }
+      
       if (bt_value != previous_bt_value){
         if(bt_value == 'J'){
           bt_value = previous_bt_value;
         }
-      //update fan value
-      static uint8_t previous_j_slider;
-      while (j_slider != previous_j_slider){
-        bluetooth.println("*P" + String(j_slider) + "*");
-        previous_j_slider = j_slider;
-      }
+      
+        //*******************************check key value*****************************************************
         switch (bt_value){
           //drive forward
           case 'F':
@@ -73,44 +76,41 @@ uint8_t k_slider_check(){
             break;
           //turn left
           case 'Q':
-            forward(motorspeed/turn_sensitivity, motorspeed);
             previous_bt_value = 'Q';
             break;
           //turn right
           case 'E':
-            forward(motorspeed, motorspeed/turn_sensitivity);
             previous_bt_value = 'E';
             break;
           //stop drive
           case 'S':
             if (previous_bt_value == 'F'){
               stop('F', motorspeed);
-              previous_bt_value = 'S';
             }
             else if (previous_bt_value == 'G'){
               stop('B', motorspeed);
-              previous_bt_value = 'S';
             }
             else{
               stop('T', motorspeed);
-              previous_bt_value = 'S';
             }
+            previous_bt_value = 'S';
             break;
           //drive backward 
           case 'G':
             backward(motorspeed, motorspeed);
             previous_bt_value = 'G';
             break;
-          //turn left backward
-          case 'Z':
-            backward(motorspeed, motorspeed/turn_sensitivity);
-            previous_bt_value = 'Z';
+          case 'h':
+            turn_sensitivity = bluetooth.parseInt();
+            bluetooth.println("*H" + String(turn_sensitivity) + "*");
+            turn_sensitivity = map(turn_sensitivity, 0, 100, 0, 255);
             break;
-          //turn right bakward
-          case 'C':
-            backward(motorspeed/turn_sensitivity, motorspeed);
-            backward(motorspeed, motorspeed/turn_sensitivity);
-            previous_bt_value ='C';
+          //reverse mode
+          case 'C': //on
+            reverse = true;
+            break;
+          case 'c': //off
+            reverse = false;
             break;
           //spin left
           case 'L':
@@ -145,6 +145,7 @@ uint8_t k_slider_check(){
               ledcWrite(fan_pwm, fan_pwm_value);
             }
             break;
+          //***********************************************rgb control*****************************************************************  
           //change rgb funtion
           case 'y':
               if(led_function_index != max_led_funtion){
@@ -172,9 +173,28 @@ uint8_t k_slider_check(){
             bluetooth.println("*I" + String(map(brightness, 0, 255, 0, 100)) + "*");
             break;
           }
+      }
+      //*************************turn left or right (forward way/backward way)*********************************
+      //turn left
+      if (previous_bt_value == 'Q'){
+        if (reverse){
+          forward(motorspeed/turn_sensitivity, motorspeed);
         }
+        else{
+          backward(motorspeed-turn_sensitivity, motorspeed);
+        }
+      }
+      //turn right
+      else if (previous_bt_value == 'E'){
+        if (reverse){
+          forward(motorspeed, motorspeed-turn_sensitivity);
+          }
+        else{
+          backward(motorspeed, motorspeed-turn_sensitivity);
+        }
+      }
 
-      //display what slider do on phone
+      //*************************display rgb texts to phone**********************************
       if (!one_text){
         switch (led_function_index){
           case 1:{

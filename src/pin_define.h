@@ -35,7 +35,6 @@
 #define right_pwmA 2
 #define right_pwmB 3
 #define stop_force 2
-#define turn_sensitivity 5
 #define joystick_deadzoneY 10
 #define joystick_deadzomeX 10
 

@@ -50,6 +50,7 @@ uint8_t k_slider_check(){
       static bool fan_toggle;
       static uint8_t fan_pwm_value;
       static bool reverse = true;
+      static int raw_turn_sensitivity;
       static int turn_sensitivity;
 
       bt_value = bluetooth.read();
@@ -101,9 +102,8 @@ uint8_t k_slider_check(){
             previous_bt_value = 'G';
             break;
           case 'h':
-            turn_sensitivity = bluetooth.parseInt();
-            bluetooth.println("*H" + String(turn_sensitivity) + "*");
-            turn_sensitivity = map(turn_sensitivity, 0, 100, 0, 255);
+            raw_turn_sensitivity = bluetooth.parseInt();
+            bluetooth.println("*H" + String(raw_turn_sensitivity) + "*");
             break;
           //reverse mode
           case 'C': //on
@@ -176,9 +176,10 @@ uint8_t k_slider_check(){
       }
       //*************************turn left or right (forward way/backward way)*********************************
       //turn left
+      turn_sensitivity = map(raw_turn_sensitivity, 0, 100, 0, motorspeed*2);
       if (previous_bt_value == 'Q'){
         if (reverse){
-          forward(motorspeed/turn_sensitivity, motorspeed);
+          forward(motorspeed-turn_sensitivity, motorspeed);
         }
         else{
           backward(motorspeed-turn_sensitivity, motorspeed);

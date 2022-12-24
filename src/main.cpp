@@ -31,7 +31,7 @@ void Task1code( void * pvParameters ){
     #endif
 
     if (line_follow_activate){
-      sc_distance = ultrasonic_distance();
+      sc_distance = 20; //ultrasonic_distance();
       if (sc_distance <= 10){
         stop('F', line_stop_speed);
         #ifdef line_debug
@@ -187,7 +187,7 @@ void Task1code( void * pvParameters ){
             beep(1000);
           #endif
           delay(500);
-          line_follow_activate = false;
+          //line_follow_activate = false;
         //
         #ifdef line_debug
           static unsigned long line_debug_delay;
@@ -216,7 +216,7 @@ void Task0code( void * pvParameters ){
     static uint8_t hue;
     static int led_index;
     static unsigned long led_delay;
-    uint8_t K_slider = k_slider_check();
+    int K_slider = k_slider_check();
     int8_t led_function_index = led_function_check();
     uint8_t brightness_slider = brightness_check();
     switch (led_function_index){
@@ -240,7 +240,8 @@ void Task0code( void * pvParameters ){
     }
     //running to center rainbow
     case 2:{
-      if((millis() - led_delay) > 255 - K_slider){
+      int maped_kslider = map(K_slider, 0, 255, 140, 10);
+      if((millis() - led_delay) > maped_kslider){
         if (led_index < NUM_LEDS/2){
           led_index ++;
           // fade everything out

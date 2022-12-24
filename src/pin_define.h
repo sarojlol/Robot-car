@@ -14,7 +14,7 @@
 //line track config
 #define line_forward_speed 128
 #define line_stop_speed 255
-#define turn_line_speed1 90 // lean abit slow side
+#define turn_line_speed1 110 // lean abit slow side
 #define turn_line_speed2 128 // lean abit fast side
 #define turn_line_speed3 0 // lean more slow side
 #define turn_line_speed4 200 // lean more fast side
@@ -36,6 +36,8 @@
 #define right_pwmB 3
 #define stop_force 2
 #define turn_sensitivity 5
+#define joystick_deadzoneY 10
+#define joystick_deadzomeX 10
 
 //accessory pins
 #define led_builtin 2

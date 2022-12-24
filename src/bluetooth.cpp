@@ -44,12 +44,42 @@ uint8_t k_slider_check(){
     static char bt_value;
     if (bluetooth.available()){
       bt_value = bluetooth.read();
+      //Serial.write(bt_value);
       static int motorspeed;
       static char previous_bt_value;
       static uint8_t previous_led_function;
       static bool one_text;
       static bool fan_toggle;
       static uint8_t fan_pwm_value;
+      static int joystick_Y;
+      static int joystick_X;
+      //joystick
+      while (bt_value == 'HX'){
+        switch (bt_value)
+        {
+        case 'Y':
+          joystick_Y = bluetooth.parseInt();
+          if (joystick_Y == 0 && joystick_X == 0){
+            stop('T', 255);
+            break;
+          }
+          else if (joystick_Y < joystick_deadzoneY){
+            joystick_Y  = joystick_Y * -1;
+            forward(joystick_Y, joystick_Y);
+            bluetooth.flush();
+            break;
+          }
+          else if (joystick_Y > joystick_deadzoneY){
+            backward(joystick_Y, joystick_Y);
+            bluetooth.flush();
+            break;
+          }
+          break;
+        case 'X':
+          joystick_X = bluetooth.parseInt();
+          break;
+        }
+      }
 
       if(bt_value == 'J'){
         j_slider = bluetooth.parseInt();
@@ -59,6 +89,7 @@ uint8_t k_slider_check(){
         if(bt_value == 'J'){
           bt_value = previous_bt_value;
         }
+      //update fan value
       static uint8_t previous_j_slider;
       while (j_slider != previous_j_slider){
         bluetooth.println("*P" + String(j_slider) + "*");
@@ -121,6 +152,26 @@ uint8_t k_slider_check(){
             spin_right(motorspeed);
             previous_bt_value = 'R';
             break;
+          //joystick
+          // case 'Y':
+          //   joystick_Y = bluetooth.parseInt();
+          //   if (joystick_Y == 0 && joystick_X == 0){
+          //     stop('T', 255);
+          //   }
+          //   else if (joystick_Y < joystick_deadzoneY){
+          //     joystick_Y  = joystick_Y * -1;
+          //     forward(joystick_Y, joystick_Y);
+          //     bluetooth.flush();
+          //   }
+          //   else if (joystick_Y > joystick_deadzoneY){
+          //     backward(joystick_Y, joystick_Y);
+          //     bluetooth.flush();
+          //   }
+          //   break;
+          // break;
+          // case 'X':
+          //   joystick_X = bluetooth.parseInt();
+          //   break;
           //read k slider value
           case 'K':
             K_slider = bluetooth.parseInt();
@@ -145,7 +196,7 @@ uint8_t k_slider_check(){
             }
             break;
           //change rgb funtion
-          case 'Y':
+          case 'y':
               if(led_function_index != max_led_funtion){
                 led_function_index++;
                 if (led_function_index > max_led_funtion - 1){
@@ -172,6 +223,7 @@ uint8_t k_slider_check(){
             break;
           }
         }
+
       //display what slider do on phone
       if (!one_text){
         switch (led_function_index){

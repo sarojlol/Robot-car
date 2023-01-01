@@ -4,10 +4,8 @@
 #include <pin_define.h>
 
 void forward(int left_speed, int right_speed){
-  left_speed = min(left_speed, 255);
-  left_speed = max(left_speed, -255);
-  right_speed = min(right_speed, 255);
-  right_speed = max(right_speed, -255);
+  left_speed = constrain(left_speed, -255, 255);
+  right_speed = constrain(right_speed, -255, 255);
   if (left_speed > 0){
     ledcWrite(left_pwmA, left_speed);
     ledcWrite(left_pwmB, 0);
@@ -28,10 +26,8 @@ void forward(int left_speed, int right_speed){
 }
 
 void backward(int left_speed, int right_speed){
-  left_speed = min(left_speed, 255);
-  left_speed = max(left_speed, -255);
-  right_speed = min(right_speed, 255);
-  right_speed = max(right_speed, -255);
+  left_speed = constrain(left_speed, -255, 255);
+  right_speed = constrain(right_speed, -255, 255);
   if (left_speed > 0){
     ledcWrite(left_pwmA, 0);
     ledcWrite(left_pwmB, left_speed);
@@ -52,24 +48,21 @@ void backward(int left_speed, int right_speed){
 }
 
 void spin_left(int speed){
-  speed = min(speed, 255);
-  speed = max(speed, 0);
+  speed = constrain(speed, 0, 255);
   ledcWrite(left_pwmB, speed);
   ledcWrite(left_pwmA, 0);
   ledcWrite(right_pwmA, speed);
   ledcWrite(right_pwmB, 0);
 }
 void spin_right(int speed){
-  speed = min(speed, 255);
-  speed = max(speed, 0);
+  speed = constrain(speed, 0, 255);
   ledcWrite(left_pwmA, speed);
   ledcWrite(left_pwmB, 0);
   ledcWrite(right_pwmB, speed);
   ledcWrite(right_pwmA, 0); 
 }
 void stop(char move, int speed){
-  speed = min(speed, 255);
-  speed = max(speed, 0);
+  speed = constrain(speed, 0, 255);
   if (move == 'F'){
     ledcWrite(left_pwmB, speed/stop_force);
     ledcWrite(left_pwmA, 0);

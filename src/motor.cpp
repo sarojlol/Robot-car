@@ -28,13 +28,27 @@ void forward(int left_speed, int right_speed){
 }
 
 void backward(int left_speed, int right_speed){
-  left_speed = max(left_speed, 0);
+  left_speed = min(left_speed, 255);
+  left_speed = max(left_speed, -255);
   right_speed = min(right_speed, 255);
-  right_speed = max(right_speed, 0);
-  ledcWrite(left_pwmB, left_speed);
-  ledcWrite(left_pwmA, 0);
-  ledcWrite(right_pwmB, right_speed);
-  ledcWrite(right_pwmA, 0);
+  right_speed = max(right_speed, -255);
+  if (left_speed > 0){
+    ledcWrite(left_pwmA, 0);
+    ledcWrite(left_pwmB, left_speed);
+  }
+  else if (left_speed < 0){
+    ledcWrite(left_pwmA, left_speed*-1);
+    ledcWrite(left_pwmB, 0);
+  }
+
+  if (right_speed > 0){
+    ledcWrite(right_pwmA, 0);
+    ledcWrite(right_pwmB, right_speed);
+  }
+  else if (right_speed < 0){
+    ledcWrite(right_pwmA, right_speed*-1);
+    ledcWrite(right_pwmB, 0);
+  }
 }
 
 void spin_left(int speed){

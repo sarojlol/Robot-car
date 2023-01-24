@@ -31,8 +31,8 @@ void Task1code( void * pvParameters ){
     #endif
 
     if (line_follow_activate){
-      sc_distance = 20; //ultrasonic_distance();
-      if (sc_distance <= 10){
+      sc_distance = ultrasonic_distance();
+      if (sc_distance <= 24){
         stop('F', line_stop_speed);
         #ifdef line_debug
           bluetooth_write("*DStop*");
@@ -54,12 +54,15 @@ void Task1code( void * pvParameters ){
         //***************************************no line detect**********************************************
         //stop
         if (!sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value &! sensor5_value){ //00000
-          stop('T', 255);
+          stop('F', 255);
+          digitalWrite(23, HIGH);
+          delay(1000);
+          digitalWrite(23, LOW);
+          line_follow_activate = false;
+          
           #ifdef line_debug
             bluetooth_write("*DStop*");
           #endif
-          beep(1000);
-          line_follow_activate = false;
         }
         //****************************************keep forward**********************************************
         else if (
@@ -67,7 +70,7 @@ void Task1code( void * pvParameters ){
           (sensor1_value &! sensor2_value &! sensor3_value &! sensor4_value && sensor5_value) /* 10001 */
         )
         {
-          forward(line_forward_speed, line_forward_speed);
+          forward(128, 100);
           #ifdef line_debug
             bluetooth_write("*DForward*");
           #endif
@@ -88,7 +91,7 @@ void Task1code( void * pvParameters ){
         }
         //spin left
         else if (!sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//00111
-          spin_left(spin_speed2);
+          spin_left(128);
           #ifdef line_debug
             Serial.println("*Dspin left*");
           #endif
@@ -98,7 +101,7 @@ void Task1code( void * pvParameters ){
         }
         //spin left
         else if (!sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//01111
-          spin_left(spin_speed3);
+          spin_left(128);
           #ifdef line_debug
             bluetooth_write("*Dspin left*");
           #endif
@@ -108,7 +111,7 @@ void Task1code( void * pvParameters ){
         }
         //lean left abit
         else if (sensor1_value &! sensor2_value &! sensor3_value && sensor4_value && sensor5_value){//10011
-          forward(turn_line_speed1, turn_line_speed2);
+          forward(128, 85);
           #ifdef line_debug
             bluetooth_write("*Dturn left abit*");
           #endif
@@ -118,7 +121,7 @@ void Task1code( void * pvParameters ){
         }
         //lean left more
         else if (sensor1_value &! sensor2_value && sensor3_value && sensor4_value && sensor5_value){//10111
-          forward(turn_line_speed3, turn_line_speed4);
+          forward(128, 70);
           #ifdef line_debug
             bluetooth_write("*Dturn left more*");
           #endif
@@ -139,7 +142,7 @@ void Task1code( void * pvParameters ){
         }
         //spin right
         else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value &! sensor5_value){//11100
-          spin_right(spin_speed2);
+          spin_right(128);
           #ifdef line_debug
             bluetooth_write("*Dspin right*");
           #endif
@@ -149,7 +152,7 @@ void Task1code( void * pvParameters ){
         }
         //spin right
         else if (sensor1_value && sensor2_value && sensor3_value && sensor4_value &! sensor5_value){//11110
-          spin_right(spin_speed3);
+          spin_right(128);
           #ifdef line_debug
             bluetooth_write("*Dspin right*");
           #endif
@@ -159,7 +162,7 @@ void Task1code( void * pvParameters ){
         }
         //lean right abit
         else if (sensor1_value && sensor2_value &! sensor3_value &! sensor4_value && sensor5_value){//11001
-          forward(turn_line_speed2, turn_line_speed1);
+          forward(85, 128);
           #ifdef line_debug
             bluetooth_write("*Dturn right abit*");
           #endif
@@ -169,7 +172,7 @@ void Task1code( void * pvParameters ){
         }
         //lean right more
         else if (sensor1_value && sensor2_value && sensor3_value &! sensor4_value && sensor5_value){//11101
-          forward(turn_line_speed4, turn_line_speed3);
+          forward(70, 128);
           #ifdef line_debug
             bluetooth_write("*Dturn right more*");
           #endif
@@ -179,7 +182,10 @@ void Task1code( void * pvParameters ){
         }
         //***************************************out of line*************************************************
         else if(sensor1_value && sensor2_value && sensor3_value && sensor4_value && sensor5_value){//11111
-          stop('T', 255);
+          stop('F', 255);
+          digitalWrite(23, HIGH);
+          delay(1000);
+          digitalWrite(23, LOW);
           #ifdef line_debug
             bluetooth_write("*Dout of line*");
           #endif
@@ -187,7 +193,7 @@ void Task1code( void * pvParameters ){
             beep(1000);
           #endif
           delay(500);
-          //line_follow_activate = false;
+          line_follow_activate = false;
         //
         #ifdef line_debug
           static unsigned long line_debug_delay;
@@ -455,16 +461,16 @@ void setup() {
   pinMode(sc_echo, INPUT);
 
   //Acessory pin setup
-  pinMode(led_builtin, OUTPUT);
+  pinMode(2, OUTPUT);
   pinMode(buzzer_pin, OUTPUT);
   pinMode(button_pin, INPUT_PULLUP);
   pinMode(volt_meter_pin, INPUT);
   ledcSetup(fan_pwm, 50, 8);
   ledcAttachPin(fan_pin, fan_pwm);
 
-  digitalWrite(led_builtin, HIGH);
+  digitalWrite(2, HIGH);
   delay(500);
-  digitalWrite(led_builtin, LOW);
+  digitalWrite(2, LOW);
 }
 void loop() {
 }
